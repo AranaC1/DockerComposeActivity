@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TinyTasks — Security Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <p class="eyebrow">DOCKER COMPOSE LAB</p>
+    <h1>TinyTasks</h1>
+  </div>
+  <nav aria-label="Main navigation">
+    <button class="nav-button active" data-page="home">Home</button>
+    <button class="nav-button" data-page="tasks">Tasks</button>
+    <button class="nav-button" data-page="docker101">Docker 101</button>
+    <button class="nav-button" data-page="security">Security Dashboard</button>
+    <button class="nav-button" data-page="debug">Debug Tips</button>
+  </nav>
+</header>
+
+<main>
+  <section id="home" class="page active">
+    <div class="intro">
+      <p class="eyebrow">YOUR SMALL TASK MANAGER</p>
+      <h2>Welcome to TinyTasks</h2>
+      <p>This frontend talks to the Flask API, which stores tasks in PostgreSQL.
+         The Security Dashboard reports controls detected inside the API container.</p>
+    </div>
+    <article class="panel">
+      <h3>API Health</h3>
+      <pre id="healthOut">Checking API…</pre>
+      <button id="refreshHealth" class="action-button">Refresh health</button>
+    </article>
+  </section>
+
+  <section id="tasks" class="page">
+    <div class="intro">
+      <p class="eyebrow">PERSISTENT TASK STORAGE</p>
+      <h2>Tasks</h2>
+      <p>Add a task below. It will be saved in the PostgreSQL database.</p>
+    </div>
+    <form id="addForm" class="task-form">
+      <label for="titleInput">Task title</label>
+      <div class="form-row">
+        <input id="titleInput" name="title" placeholder="e.g. Finish Docker lab" required maxlength="200">
+        <button class="action-button" type="submit">Add task</button>
+      </div>
+      <p id="formMessage" role="status"></p>
+    </form>
+    <article class="panel">
+      <div class="panel-heading">
+        <h3>Saved tasks</h3>
+        <button id="refreshTasks" class="quiet-button">Refresh</button>
+      </div>
+      <ul id="tasksList" class="tasks-list"><li>Loading tasks…</li></ul>
+    </article>
+  </section>
+
+  <section id="docker101" class="page">
+    <div class="intro">
+      <p class="eyebrow">QUICK REFERENCE</p>
+      <h2>Docker 101</h2>
+      <p>The main pieces used by this lab.</p>
+    </div>
+    <div class="info-grid">
+      <article class="panel"><h3>Image</h3><p>A packaged template built from a Dockerfile.</p></article>
+      <article class="panel"><h3>Container</h3><p>A running instance of an image.</p></article>
+      <article class="panel"><h3>Compose</h3><p>Defines and runs multiple services together: database, API, and UI.</p></article>
+    </div>
+    <article class="panel">
+      <h3>Typical workflow</h3>
+      <p><code>Dockerfile → build image → start container → healthcheck → inspect logs</code></p>
+    </article>
+  </section>
+
+  <section id="security" class="page">
+    <div class="intro">
+      <p class="eyebrow">CONTAINER HARDENING</p>
+      <h2>Security Dashboard</h2>
+      <p>These checks use information returned by the running API container.</p>
+    </div>
+    <article class="panel">
+      <ul class="checklist">
+        <li id="sec-nonroot"><span class="check-name">Non-root user</span><span class="status">Checking…</span></li>
+        <li id="sec-rofs"><span class="check-name">Read-only root filesystem</span><span class="status">Checking…</span></li>
+        <li id="sec-nnp"><span class="check-name">No-New-Privileges</span><span class="status">Checking…</span></li>
+        <li id="sec-health"><span class="check-name">API healthcheck</span><span class="status">Checking…</span></li>
+      </ul>
+      <div class="panel-heading">
+        <h3>Raw security information</h3>
+        <button id="refreshSecurity" class="quiet-button">Refresh checks</button>
+      </div>
+      <pre id="secRaw">Loading security information…</pre>
+      <p class="small-note">The dashboard checks non-root execution, inability to write to the root filesystem, NoNewPrivs, and API health. The Compose file also configures capability dropping and a database healthcheck.</p>
+    </article>
+  </section>
+
+  <section id="debug" class="page">
+    <div class="intro">
+      <p class="eyebrow">TROUBLESHOOTING</p>
+      <h2>Debug Tips</h2>
+      <p>Run these commands from the directory containing docker-compose.yml.</p>
+    </div>
+    <article class="panel">
+      <h3>Inspect services and logs</h3>
+      <pre>docker compose ps
+docker compose logs --tail=100 api
+docker compose logs --tail=100 db
+docker compose logs --tail=100 ui</pre>
+    </article>
+    <article class="panel">
+      <h3>Common fixes</h3>
+      <ul>
+        <li><b>Port conflict:</b> change the host side of the port mapping in docker-compose.yml.</li>
+        <li><b>Database authentication:</b> check that POSTGRES_PASSWORD and DB_PASS match. Existing database volumes retain their initialized credentials.</li>
+        <li><b>Database startup race:</b> keep the API dependency set to <code>condition: service_healthy</code>; the API also retries database initialization.</li>
+      </ul>
+    </article>
+  </section>
+</main>
+
+<footer>TinyTasks • Docker Compose learning project</footer>
+<script src="app.js"></script>
+</body>
+</html>
